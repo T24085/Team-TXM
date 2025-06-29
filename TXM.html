@@ -1,0 +1,310 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSP to allow YouTube and Twitch iframes -->
+    <meta http-equiv="Content-Security-Policy" content="frame-src https://player.twitch.tv https://www.youtube.com; default-src 'self'; img-src *; style-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'">
+    <title>Texas Militia [TXM] - TRIBES 3: Rivals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for Texas-inspired design */
+        .glow-text {
+            text-shadow: 0 0 10px rgba(218, 165, 32, 0.8), 0 0 20px rgba(218, 165, 32, 0.6);
+        }
+        .glow-border {
+            box-shadow: 0 0 15px rgba(218, 165, 32, 0.5);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 15px rgba(218, 165, 32, 0.7);
+        }
+        /* Leather texture background */
+        .gradient-bg {
+            background: linear-gradient(rgba(139, 69, 19, 0.2), rgba(139, 69, 19, 0.2)), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="rgba(139,69,19,0.1)" stroke-width="2"%3E%3Cpath d="M0 0h200v200H0z"/%3E%3Cpath d="M20 20c20 10 40 0 60 10s40-10 60 0 40 10 60 0" /%3E%3Cpath d="M20 180c20-10 40 0 60-10s40 10 60 0 40-10 60 0" /%3E%3C/svg%3E');
+            background-size: 100px;
+        }
+        /* Header and footer with barbed wire pattern */
+        .header-footer-bg {
+            background: linear-gradient(rgba(60, 47, 47, 0.9), rgba(60, 47, 47, 0.9)), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgba(218,165,32,0.1)" stroke-width="1"%3E%3Cpath d="M2 12h20M6 8l4 4-4 4M18 8l-4 4 4 4"/%3E%3C/svg%3E');
+            background-size: 30px;
+        }
+        /* Roster card with wood-grain texture */
+        .roster-card {
+            background: linear-gradient(rgba(139, 69, 19, 0.3), rgba(139, 69, 19, 0.3)), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="rgba(139,69,19,0.2)" stroke-width="1"%3E%3Cpath d="M0 20c20 0 20 10 40 10s20-10 40-10 20 10 40 10v60c-20 0-20-10-40-10s-20 10-40 10-20-10-40-10z"/%3E%3C/svg%3E');
+            background-size: 50px;
+        }
+        /* Parallax background styles */
+        .parallax-hero {
+            background-image: url('https://github.com/T24085/Team-TXM/blob/main/13.png?raw=true');
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            filter: blur(1px);
+            transition: filter 0.5s ease;
+        }
+        .parallax-hero:hover {
+            filter: blur(0);
+        }
+        .parallax-roster {
+            background-image: url('https://github.com/T24085/Team-TXM/blob/main/8.jpg?raw=true');
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            filter: blur(1px);
+            transition: filter 0.5s ease;
+        }
+        .parallax-roster:hover {
+            filter: blur(0);
+        }
+        /* Overlay for readability */
+        .parallax-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        /* Video container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-bottom: 2rem;
+            border: 2px solid #DAA520;
+            border-radius: 4px;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 1000px) {
+            .stream-container {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg text-beige-100 font-serif">
+    <!-- Header Section -->
+    <header class="header-footer-bg p-6 sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <!-- Team Logo -->
+                <img src="https://github.com/T24085/Team-TXM/blob/main/TXM.png?raw=true" alt="Texas Militia [TXM] Logo" class="w-16 h-16 border-2 border-yellow-600">
+                <h1 class="ml-4 text-3xl font-extrabold glow-text">Texas Militia [TXM]</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#home" class="text-beige-100 hover:text-yellow-400 transition">Home</a></li>
+                    <li><a href="#featured-video" class="text-beige-100 hover:text-yellow-400 transition">Featured Video</a></li>
+                    <li><a href="#streams" class="text-beige-100 hover:text-yellow-400 transition">Streams</a></li>
+                    <li><a href="#roster" class="text-beige-100 hover:text-yellow-400 transition">Roster</a></li>
+                    <li><a href="#about" class="text-beige-100 hover:text-yellow-400 transition">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section with Parallax Background -->
+    <section id="home" class="parallax-hero py-20 text-center relative">
+        <div class="parallax-overlay"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <h2 class="text-5xl font-extrabold mb-4 glow-text">
+                <span class="text-red-700">Welcome</span>
+                <span class="text-beige-100">to</span>
+                <span class="text-indigo-800">Texas</span>
+                <span class="text-red-700">Militia!</span>
+            </h2>
+            <p class="text-xl mb-8 text-beige-100">Charging through the Wilderzone of TRIBES 3: Rivals with the fierce spirit of Texas, wielding grit and firepower.</p>
+            <a href="https://store.steampowered.com/app/2687970/TRIBES_3_Rivals/" target="_blank" class="bg-brown-800 hover:bg-brown-700 text-beige-100 font-bold py-3 px-6 border-2 border-yellow-600 rounded shadow-md hover-scale">Play TRIBES 3: Rivals</a>
+        </div>
+    </section>
+
+    <!-- Featured Video Section -->
+    <section id="featured-video" class="py-16 bg-brown-900 bg-opacity-80">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-extrabold text-center mb-12 glow-text">
+                <span class="text-beige-100">Featured</span>
+                <span class="text-indigo-800">Video</span>
+            </h2>
+            <div class="video-container mx-auto max-w-4xl">
+                <iframe src="https://www.youtube.com/embed/I7f2lbPB86w" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Streams Section -->
+    <section id="streams" class="py-16 bg-brown-900 bg-opacity-80">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl font-extrabold text-center mb-12 glow-text">
+                <span class="text-red-700">Team</span>
+                <span class="text-beige-100">Streams</span>
+            </h2>
+            <div class="stream-container">
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Cryof</h3>
+                    <a href="https://www.twitch.tv/cryofzshooter" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/cryofzshooter</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Freefood</h3>
+                    <a href="https://www.twitch.tv/freefoodd" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/freefoodd</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Howsya</h3>
+                    <a href="https://www.twitch.tv/howsya" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/howsya</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Jive</h3>
+                    <a href="https://www.twitch.tv/heavenlyjive" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/heavenlyjive</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Prizzo</h3>
+                    <a href="https://www.twitch.tv/prizzo4real" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/prizzo4real</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Visis</h3>
+                    <a href="https://www.twitch.tv/visisgaming" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/visisgaming</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roster Section with Parallax Background -->
+    <section id="roster" class="parallax-roster py-16 relative">
+        <div class="parallax-overlay"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <h2 class="text-4xl font-extrabold text-center mb-12 glow-text">
+                <span class="text-indigo-800">Team</span>
+                <span class="text-red-700">Roster</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Captain -->
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">OpCats</h3>
+                    <p class="text-yellow-400">Captain (LO/LD)</p>
+                </div>
+                <!-- Core Members -->
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Prizzo</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                    <a href="https://www.twitch.tv/prizzo4real" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/prizzo4real</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Cryof</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                    <a href="https://www.twitch.tv/cryofzshooter" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/cryofzshooter</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Amyou</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Thatguy</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Visis</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                    <a href="https://www.twitch.tv/visisgaming" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/visisgaming</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Jive</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                    <a href="https://www.twitch.tv/heavenlyjive" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/heavenlyjive</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Freefood</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                    <a href="https://www.twitch.tv/freefoodd" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/freefoodd</a>
+                </div>
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Howsya</h3>
+                    <p class="text-yellow-400">Core Member</p>
+                    <a href="https://www.twitch.tv/howsya" target="_blank" class="text-yellow-400 hover:text-yellow-300">twitch.tv/howsya</a>
+                </div>
+                <!-- Bench -->
+                <div class="roster-card p-6 glow-border hover-scale">
+                    <h3 class="text-xl font-semibold text-beige-100">Txredneck</h3>
+                    <p class="text-yellow-400">Bench</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-brown-900 bg-opacity-80">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-extrabold mb-8 glow-text">
+                <span class="text-beige-100">About</span>
+                <span class="text-indigo-800">Texas</span>
+                <span class="text-red-700">Militia!</span>
+            </h2>
+            <p class="text-lg mb-4 text-beige-100">Texas Militia [TXM] is a relentless force in *TRIBES 3: Rivals*, forged in the rugged heart of Texas. Led by Captain OpCats, the Militia charges the Wilderzone with raw power, unshakable resolve, and a lone star spirit.</p>
+            <p class="text-lg text-beige-100">Saddle up and watch our battles on Twitch to join the Texas Militia!</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="header-footer-bg py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-beige-100">© 2025 Texas Militia [TXM]. All rights reserved.</p>
+            <p>Follow us on <a href="https://x.com/TXM" target="_blank" class="text-yellow-400 hover:text-yellow-300">@TXM</a></p>
+        </div>
+    </footer>
+</body>
+</html>
